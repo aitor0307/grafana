@@ -1,0 +1,5 @@
+FROM grafana/grafana:latest
+USER root
+RUN rm -rf /usr/share/grafana/public/build
+COPY public/build /usr/share/grafana/public/build
+USER 472

@@ -114,6 +114,10 @@ describe('getLogLevelFromKey()', () => {
   it('returns correct log level when level is capitalized', () => {
     expect(getLogLevelFromKey('INFO')).toBe(LogLevel.info);
   });
+  it('returns health log level', () => {
+    expect(getLogLevelFromKey('health')).toBe(LogLevel.health);
+    expect(getLogLevelFromKey('HEALTH')).toBe(LogLevel.health);
+  });
   describe('Numeric log levels', () => {
     it('returns critical', () => {
       expect(getLogLevelFromKey(0)).toBe(LogLevel.critical);
