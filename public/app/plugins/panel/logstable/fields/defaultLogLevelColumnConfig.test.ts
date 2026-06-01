@@ -15,6 +15,11 @@ describe('defaultLogLevelColumnConfig', () => {
       expect(map.options[LogLevel.warning]?.color).toBe(LogLevelColor[LogLevel.warning]);
     });
 
+    it('maps health level to its pink color', () => {
+      const map = buildDefaultLogLevelValueMap();
+      expect(map.options[LogLevel.health]?.color).toBe(LogLevelColor[LogLevel.health]);
+    });
+
     it('maps synonym levels like crit and emerg to critical as visible text', () => {
       const map = buildDefaultLogLevelValueMap();
       expect(LogLevel.crit).toBe(LogLevel.critical);

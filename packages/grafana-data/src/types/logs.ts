@@ -38,6 +38,7 @@ export enum LogLevel {
   dbug = 'debug',
   debug = 'debug',
   trace = 'trace',
+  health = 'health',
   unknown = 'unknown',
 }
 

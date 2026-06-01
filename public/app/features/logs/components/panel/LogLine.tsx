@@ -539,6 +539,7 @@ export const getStyles = (
     debug: '#6E9FFF',
     trace: '#6ed0e0',
     info: '#6CCF8E',
+    health: '#FF78C4',
     metadata: theme.colors.text.secondary,
     default: colorDefault,
     parsedField: theme.colors.text.secondary,
@@ -696,6 +697,9 @@ export const getStyles = (
       },
       '&.level-debug': {
         color: colors.debug,
+      },
+      '&.level-health': {
+        color: colors.health,
       },
     }),
     loadMoreButton: css({

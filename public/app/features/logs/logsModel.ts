@@ -60,6 +60,7 @@ export const LogLevelColor = {
   [LogLevel.info]: colors[0],
   [LogLevel.debug]: colors[5],
   [LogLevel.trace]: colors[2],
+  [LogLevel.health]: '#FF78C4',
   [LogLevel.unknown]: getThemeColor('#8e8e8e', '#bdc4cd'),
 };
 
@@ -646,7 +647,10 @@ function defaultExtractLevel(dataFrame: DataFrame): LogLevel {
 }
 
 function getLogLevelFromLabels(labels: Labels): LogLevel {
-  const level = labels['level'] ?? labels['detected_level'] ?? labels['lvl'] ?? labels['loglevel'] ?? '';
+  // Prefer detected_level so the logs-volume series color matches the log list
+  // (dataFrameToLogsModel resolves detected_level before level). Otherwise a
+  // health log carrying a stale `level=info` label would color the volume green.
+  const level = labels['detected_level'] ?? labels['level'] ?? labels['lvl'] ?? labels['loglevel'] ?? '';
   return level ? getLogLevelFromKey(level) : LogLevel.unknown;
 }
 

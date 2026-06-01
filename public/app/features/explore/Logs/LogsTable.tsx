@@ -11,6 +11,7 @@ import {
   type DataTransformerConfig,
   type Field,
   FieldType,
+  getDisplayProcessor,
   guessFieldTypeForField,
   LogsSortOrder,
   sortDataFrame,
@@ -34,6 +35,7 @@ import {
 } from '@grafana/ui';
 import { FILTER_FOR_OPERATOR, FILTER_OUT_OPERATOR } from '@grafana/ui/internal';
 import { DATAPLANE_ID_NAME, type LogsFrame } from 'app/features/logs/logsFrame';
+import { buildDefaultLogLevelValueMap } from 'app/plugins/panel/logstable/fields/defaultLogLevelColumnConfig';
 
 import { getFieldLinksForExplore } from '../utils/links';
 
@@ -182,6 +184,18 @@ export function LogsTable(props: Props) {
         // For the first field (time), wrap the cell to include action buttons
         const isFirstField = fieldIdx === 0;
 
+        // Level/detected_level/severity column: attach LogLevelColor value mappings
+        // and render as ColorText so values like "health" pick up the pink color.
+        const isLevelField =
+          !isFirstField &&
+          (field.name === logsFrame?.severityField?.name ||
+            field.name === 'detected_level' ||
+            field.name === 'level');
+        if (isLevelField && !field.config.mappings?.length) {
+          field.config = { ...field.config, mappings: [buildDefaultLogLevelValueMap()] };
+          field.display = getDisplayProcessor({ field, theme: config.theme2 });
+        }
+
         field.config = {
           ...field.config,
           custom: {
@@ -209,7 +223,9 @@ export function LogsTable(props: Props) {
                     </>
                   ),
                 }
-              : field.config.custom?.cellOptions,
+              : isLevelField
+                ? { type: TableCellDisplayMode.ColorText }
+                : field.config.custom?.cellOptions,
             headerComponent: isFirstField
               ? (headerProps: { defaultContent: React.ReactNode }) => (
                   <div className={styles.firstColumnHeader}>{headerProps.defaultContent}</div>

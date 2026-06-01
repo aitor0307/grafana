@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import useMountedState from 'react-use/lib/useMountedState';
 import { lastValueFrom } from 'rxjs';
 
-import { type DataFrame, type FieldConfigSource, transformDataFrame } from '@grafana/data';
-import { type CustomCellRendererProps, TableCellDisplayMode } from '@grafana/ui';
+import { type DataFrame, type FieldConfigSource, getDisplayProcessor, transformDataFrame } from '@grafana/data';
+import { type CustomCellRendererProps, TableCellDisplayMode, useTheme2 } from '@grafana/ui';
 import { type LogsFrame } from 'app/features/logs/logsFrame';
 
 import { LOG_LINE_BODY_FIELD_NAME } from '../../../../features/logs/components/fieldSelector/logFields';
@@ -43,6 +43,7 @@ export function useOrganizeFields({
 }: Props) {
   const [organizedFrame, setOrganizedFrame] = useState<DataFrame | null>(null);
   const isMounted = useMountedState();
+  const theme = useTheme2();
 
   /**
    * Organize fields transform
@@ -61,7 +62,8 @@ export function useOrganizeFields({
       bodyFieldName,
       supportsPermalink,
       onPermalinkClick,
-      fieldConfig
+      fieldConfig,
+      theme
     )
       .then((frame) => {
         if (frame && isMounted()) {
@@ -82,6 +84,7 @@ export function useOrganizeFields({
     onPermalinkClick,
     isMounted,
     fieldConfig,
+    theme,
   ]);
 
   return { organizedFrame };
@@ -96,7 +99,8 @@ const organizeFields = async (
   bodyFieldName: string,
   supportsPermalink: boolean,
   onPermalinkClick: BuildLinkToLogLine,
-  fieldConfig: FieldConfigSource
+  fieldConfig: FieldConfigSource,
+  theme: import('@grafana/data').GrafanaTheme2
 ) => {
   if (!extractedFrame) {
     return Promise.resolve(null);
@@ -180,6 +184,12 @@ const organizeFields = async (
               : configAfterLevel.custom?.cellOptions,
         },
       };
+
+      // Create a new field reference so React's useMemo in PillCell detects the change
+      // and recomputes pill colors with our updated config (including level color mappings).
+      const updatedField = { ...field };
+      updatedField.display = getDisplayProcessor({ field: updatedField, theme });
+      frame.fields[fieldIndex] = updatedField;
     }
   }
 
